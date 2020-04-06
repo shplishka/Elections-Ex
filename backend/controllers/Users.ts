@@ -4,7 +4,6 @@ import * as bcrypt from 'bcrypt'
 import {check} from 'express-validator'
 
 import UsersTable from '../models/users'
-import {json} from "sequelize";
 
 interface UserLoginData {
     idNumber: number,

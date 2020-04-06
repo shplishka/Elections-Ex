@@ -48,7 +48,7 @@ class App {
     }
 
     public init() {
-        this.HttpResReq()
+        this.HttpResReq();
         this.connectToDB();
         this.app.listen(this.port, () => {
             console.log(`App listening on the http://localhost:${this.port}`)

@@ -54,7 +54,6 @@ class Choosers implements Controller {
         }).catch(err => {
             res.send("error: " + err);
         });
-        ;
 
     }
 
