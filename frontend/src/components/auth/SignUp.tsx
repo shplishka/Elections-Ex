@@ -43,7 +43,6 @@ export default function SignUp() {
                 console.log(res);
                 auth.login();
             }).catch(err => {
-            setErrorMessage(JSON.stringify(err.response.data))
         });
     });
     return (
@@ -57,7 +56,6 @@ export default function SignUp() {
                 <input name="password" type="password" placeholder="Password" ref={register}/>
                 <input name="password2" type="password" placeholder="Conform Password" ref={register}/>
                 <button className="form-button" type="submit">sign up</button>
-                <div className={'error-message'}>{errorMessage}</div>
             </form>
         </div>
     );

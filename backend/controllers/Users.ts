@@ -19,7 +19,7 @@ class Users implements Controller {
     }
     public initRoutes() {
         this.router.post(
-            "/register",
+            "/signUp",
             [
                 check("firstName")
                     .not()
