@@ -10,52 +10,43 @@ interface FormData {
     idNumber: number,
     email: string,
     password: string,
-    password2: string,
-}
-
-interface UserFormResponse {
-    idNumber: number,
-    password: string,
-    email: string,
-    createAt: Date,
-    updateAt: Date
-}
-
-interface ResponseData {
-    user: UserFormResponse
+    password_confirmation: string,
 }
 
 export default function SignUp() {
-    const {register, setValue, handleSubmit, errors} = useForm<FormData>();
+    const {register, handleSubmit} = useForm<FormData>();
     const auth = useContext(AuthContext);
     const [errorMessage, setErrorMessage] = useState('')
-    const sendFormData = handleSubmit(({firstName, lastName, idNumber, email, password, password2}) => {
+    const sendFormData = handleSubmit(({firstName, lastName, idNumber, email, password, password_confirmation}) => {
         axios
-            .post<FormData, ResponseData>(`http://localhost:5000/signUp`, {
+            .post(`http://localhost:5000/api/users/signUp`, {
                 firstName: firstName,
                 lastName: lastName,
                 idNumber: idNumber,
                 email: email,
                 password: password,
-                password2: password2
+                password_confirmation: password_confirmation
             })
             .then(res => {
-                console.log(res);
                 auth.login();
             }).catch(err => {
+            setErrorMessage(err.response.data.error)
         });
     });
     return (
         <div className="form-container sign-up-container">
             <form onSubmit={sendFormData}>
                 <h1 className="form-title">Hello, Friend!</h1>
-                <input name="firstName" type="text" placeholder="First Name" ref={register}/>
-                <input name="lastName" type="text" placeholder="Last Name" ref={register}/>
-                <input name="email" type="email" placeholder="Email" ref={register}/>
-                <input name="idNumber" type="number" placeholder="Id Number" ref={register}/>
+                <input name="firstName" placeholder="First Name" ref={register}/>
+                <input name="lastName" placeholder="Last Name" ref={register}/>
+                <input name="email" placeholder="Email" ref={register}/>
+                <input name="idNumber" placeholder="Id Number" ref={register}/>
                 <input name="password" type="password" placeholder="Password" ref={register}/>
-                <input name="password2" type="password" placeholder="Conform Password" ref={register}/>
+                <input name="password_confirmation" type="password" placeholder="Conform Password"
+                       ref={register}
+                />
                 <button className="form-button" type="submit">sign up</button>
+                <p>{errorMessage}</p>
             </form>
         </div>
     );

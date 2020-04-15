@@ -9,48 +9,33 @@ type FormData = {
 
 };
 
-interface ServerResponse {
-    data: ServerData
-}
-
-interface ServerData {
-    user: userData
-}
-
-interface userData {
-    idNumber: number;
-    password: string;
-
-}
-
 export default function Login() {
     const auth = useContext(AuthContext);
-    const {register, setValue, handleSubmit, errors} = useForm<FormData>();
+    const {register, handleSubmit} = useForm<FormData>();
     const [errorMessage, setErrorMessage] = useState('')
     const onSubmit = handleSubmit(({idNumber, password}) => {
         axios
-            .post<string, ServerResponse>(`http://localhost:5000/login`, {
+            .post(`http://localhost:5000/api/users/login`, {
                 idNumber: idNumber,
                 password: password,
             })
             .then(res => {
-                console.log(res);
-                auth.login();
-                if(res.data.user.idNumber === 11112222){
+                console.log(res)
+                if (res.data.userInstance.idNumber === 11112222) {
                     auth.adminLogin()
-                }
+                } else auth.login()
             }).catch(err => {
-            setErrorMessage(JSON.stringify(err.response.data))
+            setErrorMessage(err.response.data.error)
         });
     });
     return (
         <div className="form-container sign-in-container">
             <form onSubmit={onSubmit}>
                 <h1 className="form-title">Welcome Back!</h1>
-                <input name="idNumber" type="number" placeholder="Id Number" ref={register}/>
+                <input name="idNumber" placeholder="Id Number" ref={register}/>
                 <input name="password" type="password" placeholder="Password" ref={register}/>
                 <button className="form-button" type="submit">sign in</button>
-                <div className={'error-message'}>{errorMessage}</div>
+                <p>{errorMessage}</p>
             </form>
         </div>
     );

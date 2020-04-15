@@ -1,87 +1,75 @@
-import React, {Component, useEffect, useState} from "react";
+import React, {useState} from "react";
 import './PickParty.css'
 import {useForm} from "react-hook-form";
 import axios from "axios";
 
 type FormData = {
     idNumber: number;
-    miflaga: string;
+    party: string;
 };
 
 
 let inputs = [{
 
-    "name": "FirstName",
-    "logo": ""
+    "name": "",
+    "urlLogo": ""
 
-}, {
-
-    "name": "Surname",
-    "logo": ""
-
-}];
-
-interface ServerResponse {
-    data: ServerData
-}
-
-interface ServerData {
-    result: miflagaData[]
-}
-
-interface miflagaData {
-    name: string;
-    logo: string;
-}
+}]
 
 export default function PickParty() {
-    const [miflagot, setLoadedMiflagot] = useState(inputs);
-    const {register, setValue, handleSubmit, errors} = useForm<FormData>();
-    const onSubmit = handleSubmit(({idNumber, miflaga}) => {
-        console.log(register)
+    const [parties, setLoadedParties] = useState(inputs);
+    const [userMessage, setMessage] = useState('')
+    const {register, handleSubmit} = useForm<FormData>();
+    const onSubmit = handleSubmit(({idNumber, party}) => {
         axios
             .post(`http://localhost:5000/api/choosers/choose`, {
                 idNumber: idNumber,
-                miflaga: miflaga,
+                party: party,
             })
             .then(res => {
-                console.log(res);
+                setMessage('congratulations!')
             }).catch(err => {
-            console.log(err);
+            setMessage(err.response.data.error)
+
         });
     });
-    const fetchMiflagot = async () => {
+    const fetchParties = async () => {
         axios
-            .get<string, ServerResponse>(`http://localhost:5000/getAll`)
+            .get(`http://localhost:5000/api/parties/getAll`)
             .then(res => {
-                setLoadedMiflagot(res.data.result)
+                if (res.data.result.length === 0) {
+                    setMessage('there is any parties')
+                }
+                setLoadedParties(res.data.result)
             }).catch(err => {
-            console.log(err);
+            setMessage(err.response.data.error)
         });
     };
 
     return (
-        <div className='miflagot-container'>
-            <div className="row">
-                {miflagot.map((miflaga) => (
-                    <div className="miflagaCard">
-                        <div className="content">
-                            <div className="front" style={{
-                                backgroundImage: "url(" + miflaga.logo + ")",
-                                backgroundPosition: 'center',
-                                backgroundSize: '300px 100px',
-                                backgroundRepeat: 'no-repeat'
-                            }}>
-                            </div>
-                            <input className="back" name='miflaga' type="radio" value={miflaga.name} ref={register}/>
+        <div className="container">
+            <form className="form-container" onSubmit={onSubmit}>
+                <div>
+                    {parties.map((party) => (
+                        <div>
+                            <section className="card">
+                                <input name='party' type="radio" value={party.name} ref={register}/>
+                                <div className="avatar">
+                                    <img className="thumbnail image-size"
+                                         src={party.urlLogo}
+                                    />
+
+                                </div>
+                                <h3 className="user-name">{party.name}</h3>
+                            </section>
                         </div>
-                    </div>))}
-            </div>
-            <form className="submit-form-container" onSubmit={onSubmit}>
-                <input name="idNumber" type="number" placeholder="id Number" ref={register}/>
-                <button className="form-button" type="submit">submit</button>
+                    ))}
+                </div>
+                <input name="idNumber" placeholder="id Number" ref={register}/>
+                <button className="button" type="submit">submit</button>
+                <p>{userMessage}</p>
+                <button className="button" onClick={fetchParties}>update parties</button>
             </form>
-            <button className="form-button" onClick={fetchMiflagot}>update parties</button>
         </div>
     );
 }

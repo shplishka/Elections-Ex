@@ -1,13 +1,14 @@
 import * as express from 'express'
 import {database} from './util/database'
 
-import { Application } from 'express'
+import {Application} from 'express'
+import Controller from "./controllers/Controller";
 
 class App {
     public app: Application;
     public port: number;
 
-    constructor(appInit: { port: number; middleWares: any; controllers: any; }) {
+    constructor(appInit: { port: number; middleWares: any; controllers: Controller[]; }) {
         this.app = express();
         this.port = appInit.port;
 
@@ -21,22 +22,13 @@ class App {
         })
     }
 
-    private routes(controllers: { forEach: (arg0: (controller: any) => void) => void; }) {
+    private routes(controllers: { forEach: (arg0: (controller: Controller) => void) => void; }) {
         controllers.forEach(controller => {
-            this.app.use('/', controller.router)
+            this.app.use('/api' + controller.path, controller.router)
         })
     }
-    private HttpResReq(){
-        this.app.use((error, req, res, next) => {
-            if (res.headerSent) {
-                return next(error);
-            }
-            res.status(error.code || 500);
-            res.json({ message: error.message || 'An unknown error occurred!' });
-        });
-    }
 
-    private  connectToDB(){
+    private dbConnection() {
         database.sync()
             .then(result => {
                 console.log(`DB up and running`)
@@ -44,12 +36,10 @@ class App {
             .catch(err => {
                 console.log(err);
             });
-
     }
 
     public init() {
-        this.HttpResReq();
-        this.connectToDB();
+        this.dbConnection()
         this.app.listen(this.port, () => {
             console.log(`App listening on the http://localhost:${this.port}`)
         })

@@ -11,7 +11,7 @@ import PartyResults from "./components/results/PartyResults";
 import SignInUpWindow from "./components/auth/SignInUpWindow";
 import {AuthContext} from "./shared/context/auth-context";
 
-export default function App(){
+export default function App() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
     const login = useCallback(() => {
@@ -21,31 +21,31 @@ export default function App(){
         setIsAdmin(true);
     }, []);
     let routes;
-    if (isLoggedIn) {
-        if (isAdmin) {
-            routes = (
-                <Switch>
-                    <Route path="/" exact>
-                        <PartyResults/>
-                    </Route>
-                    <Redirect to="/"/>
-                </Switch>
-            );
-        } else {
-            routes = (
-                <Switch>
-                    <Route path="/" exact>
-                        <ChooseParty/>
-                    </Route>
-                    <Redirect to="/"/>
-                </Switch>
-            );
-        }
+    if (isAdmin) {
+        routes = (
+            <Switch>
+                <Route path="/" exact>
+                    <PartyResults/>
+                </Route>
+                <Redirect to="/"/>
+            </Switch>
+        );
+    } else if (isLoggedIn) {
+        routes = (
+            <Switch>
+                <Route path="/" exact>
+                    <ChooseParty/>
+                </Route>
+                <Redirect to="/"/>
+            </Switch>
+        );
     } else {
         routes = (
             <Switch>
                 <Route path="/" exact>
-                    <SignInUpWindow/>
+                    {/*<SignInUpWindow/>*/}
+                    <PartyResults/>
+
                 </Route>
                 <Redirect to="/"/>
             </Switch>

@@ -1,54 +1,22 @@
-import React, {Component, useEffect, useState} from "react";
+import React, {useState} from "react";
 import './PartyResults.css'
-import {useForm} from "react-hook-form";
 import axios from "axios";
-
-type FormData = {
-    idNumber: number;
-    miflaga: string;
-};
 
 let inputs = [{
 
-    "miflaga": "",
+    "party": "",
     "countOfChooser": ""
 
 }]
 
-interface ServerResponse {
-    data: ServerData
-}
-
-interface ServerData {
-    result: miflagaData[]
-}
-
-interface miflagaData {
-    miflaga: string;
-    countOfChooser: string;
-}
 
 export default function Elections() {
-    const [miflagot, setLoadedMiflagot] = useState(inputs);
-    const {register, setValue, handleSubmit, errors} = useForm<FormData>();
-    const onSubmit = handleSubmit(({idNumber, miflaga}) => {
-        console.log(register)
+    const [parties, setLoadedParties] = useState(inputs);
+    const fetchParties = async () => {
         axios
-            .post(`http://localhost:5000/api/choosers/choose`, {
-                idNumber: idNumber,
-                miflaga: miflaga,
-            })
+            .get(`http://localhost:5000/api/choosers/results`)
             .then(res => {
-                console.log(res);
-            }).catch(err => {
-            console.log(err);
-        });
-    });
-    const fetchMiflagot = async () => {
-        axios
-            .get<string, ServerResponse>(`http://localhost:5000/results`)
-            .then(res => {
-                setLoadedMiflagot(res.data.result)
+                setLoadedParties(res.data.result)
             }).catch(err => {
             console.log(err);
         });
@@ -56,19 +24,19 @@ export default function Elections() {
 
     return (
         <div>
-            <div className="container">
-                <div className="row">
-                    {miflagot.map((miflaga) => (
-                        <div>
+            <div >
+                <div >
+                    {parties.map((party) => (
+                        <div >
                             <div>
-                                <h2>{miflaga.miflaga}</h2>
-                                <h3 className={"center"}>Number of choosers: {miflaga.countOfChooser}</h3>
+                                <h2>{party.party}</h2>
+                                <h3>Number of choosers: {party.countOfChooser}</h3>
                             </div>
                         </div>
                     ))}
                 </div>
             </div>
-            <button className="form-button" onClick={fetchMiflagot}>update results</button>
+            <button className="form-button" onClick={fetchParties}>update results</button>
         </div>
     );
 }

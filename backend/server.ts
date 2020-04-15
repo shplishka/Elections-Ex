@@ -5,7 +5,7 @@ import * as cors from 'cors'
 import loggerMiddleware from './middleware/logger'
 
 
-import  Users from './controllers/Users'
+import  Users from './controllers/users/Users'
 import  Choosers from './controllers/Choosers'
 import  Parties from './controllers/Parties'
 

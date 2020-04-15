@@ -1,62 +1,60 @@
-import * as express from 'express'
-import choosersTable from '../models/chooser'
-
-import Controller from '../interfaces/Controller'
+import Controller from './Controller'
 import {Sequelize} from "sequelize-typescript";
+import {Request, Response} from "express";
 
-class Choosers implements Controller {
-    public router = express.Router();
+import choosersTable,{Chooser} from '../models/choosers'
+import {chooserScheme} from "../validation/ValidationsSchemas";
 
+export default class Choosers extends Controller {
     constructor() {
-        this.initRoutes()
+        super();
+        this.path = '/choosers'
     }
 
     public initRoutes() {
-        this.router.post("/choose", this.choose);
+        this.router.post("/choose",this.requestValidator.validateBody(chooserScheme), this.choose);
         this.router.get("/results", this.getResults);
     }
 
-    async choose(req, res) {
-        const {idNumber, party} = req.body;
-        const chooseData = {
-            idNumber: idNumber,
-            party: party
-        };
+    private async choose(req: Request, res: Response) {
+        const chooserData: Chooser = req.body;
+        console.log(req.body)
+
         choosersTable.findOne({
             where: {
-                idNumber: idNumber
+                idNumber: chooserData.idNumber
             }
         })
-            .then(chooser => {
-                if (!chooser) {
-                    choosersTable.create(chooseData)
-                        .then(chooser => {
-                            res.json({chooser});
+            .then(chooserInstance => {
+                console.log(chooserInstance)
+                if (!chooserInstance) {
+                    choosersTable.create(chooserData)
+                        .then(newChooser => {
+                            res.json({newChooser});
                         })
                         .catch(err => {
-                            res.send("error: " + err);
+                            res.status(400).json("error: " + err);
                         });
                 } else {
-                    res.json({error: idNumber + " User already choose"});
+                    res.status(400).json({error: chooserData.idNumber + " User already choose"});
                 }
             })
             .catch(err => {
-                res.send("error: " + err);
+                res.status(400).json("error: " + err);
             });
     };
 
-    async getResults(req, res) {
+    private async getResults(req: Request, res: Response) {
         choosersTable.findAll({
             attributes: ['party', [Sequelize.fn('COUNT', 'idNumber'), 'countOfChooser']],
             group: ['party']
         }).then(result => {
             res.json({result})
         }).catch(err => {
-            res.send("error: " + err);
+            res.status(400).json("error: " + err);
         });
 
     }
 
 }
 
-export default Choosers
