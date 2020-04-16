@@ -43,9 +43,7 @@ export default function App() {
         routes = (
             <Switch>
                 <Route path="/" exact>
-                    {/*<SignInUpWindow/>*/}
-                    <PartyResults/>
-
+                    <SignInUpWindow/>
                 </Route>
                 <Redirect to="/"/>
             </Switch>
